@@ -46,8 +46,12 @@ class WebComponent extends Component {
 	 * @param WebComponent $component
 	 */
 	public function mergeCss(WebComponent $component) {
-		$this->cssLinks = array_merge($this->cssLinks, $component->getCssLinks());
-		$this->cssCode  = array_merge($this->cssCode, $component->getCssCodeArray());
+		$componentCssLinks = $component->getCssLinks();
+		foreach ($this->cssLinks as $media => $links) {
+			if (!isset($componentCssLinks[$media])) continue;
+			$this->cssLinks[$media] = array_merge($this->cssLinks[$media], $componentCssLinks[$media]);
+		}
+		$this->cssCode = array_merge($this->cssCode, $component->getCssCodeArray());
 	}
 
 	/**
@@ -88,8 +92,7 @@ class WebComponent extends Component {
 	 * @return string
 	 */
 	public function getCssCode() {
-		$res = array_unique($this->cssCode);
-		return implode("\n", $res);
+		return implode("\n", $this->cssCode);
 	}
 
 	/**
@@ -97,9 +100,8 @@ class WebComponent extends Component {
 	 *
 	 * @return string
 	 */
-	public function getJsCode($position = self::JS_TOP) {
-		$res = array_unique($this->jsCode[$position]);
-		return implode("\n", $res);
+	public function getJsCode($position = self::JS_BOTTOM) {
+		return implode("\n", $this->jsCode[$position]);
 	}
 
 	/**
@@ -109,7 +111,8 @@ class WebComponent extends Component {
 	 */
 	public function addCssCode($code) {
 		if (is_file($code)) $code = file_get_contents($code);
-		$this->cssCode[] = $code;
+		$code = trim($code);
+		$this->cssCode[sha1($code)] = $code;
 	}
 
 	/**
@@ -120,10 +123,11 @@ class WebComponent extends Component {
 	 */
 	public function addJsCode($code, $position = self::JS_BOTTOM) {
 		if (is_file($code)) $code = file_get_contents($code);
+		$code = trim($code);
 		if ($position === self::JS_BOTTOM)
-			$this->jsCode[self::JS_BOTTOM][] = $code;
+			$this->jsCode[self::JS_BOTTOM][sha1($code)] = $code;
 		else
-			$this->jsCode[self::JS_TOP][] = $code;
+			$this->jsCode[self::JS_TOP][sha1($code)] = $code;
 	}
 
 	/**
@@ -171,9 +175,6 @@ class WebComponent extends Component {
 	 * @return array
 	 */
 	public function getCssLinks() {
-		foreach ($this->cssLinks as $media => $links) {
-			$this->cssLinks[$media] = array_unique($links);
-		}
 		return $this->cssLinks;
 	}
 
@@ -183,8 +184,6 @@ class WebComponent extends Component {
 	 * @return array
 	 */
 	public function getJsLinks() {
-		$this->jsLinks[self::JS_TOP]    = array_unique($this->jsLinks[self::JS_TOP]);
-		$this->jsLinks[self::JS_BOTTOM] = array_unique($this->jsLinks[self::JS_BOTTOM]);
 		return $this->jsLinks;
 	}
 

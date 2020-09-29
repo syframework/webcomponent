@@ -47,9 +47,12 @@ class WebComponent extends Component {
 	 */
 	public function mergeCss(WebComponent $component) {
 		$componentCssLinks = $component->getCssLinks();
-		foreach ($this->cssLinks as $media => $links) {
-			if (!isset($componentCssLinks[$media])) continue;
-			$this->cssLinks[$media] = array_merge($this->cssLinks[$media], $componentCssLinks[$media]);
+		foreach ($componentCssLinks as $media => $links) {
+			if (isset($this->cssLinks[$media])) {
+				$this->cssLinks[$media] = array_merge($this->cssLinks[$media], $links);
+			} else {
+				$this->cssLinks[$media] = $links;
+			}
 		}
 		$this->cssCode = array_merge($this->cssCode, $component->getCssCodeArray());
 	}

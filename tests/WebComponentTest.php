@@ -5,6 +5,31 @@ use Sy\Component\WebComponent;
 
 class WebComponentTest extends TestCase {
 
+	public function testParentWithoutCssLink() {
+		$a = new WebComponent();
+		$b = new WebComponent();
+		$c = new WebComponent();
+		$c->addCssLink('c.css');
+		$this->assertEquals($c->getCssLinks(), [
+			'' => [
+				'c.css' => 'c.css'
+			]
+		]);
+
+		$b->setComponent('SLOT', $c);
+		$a->setComponent('SLOT', $b);
+		$this->assertEquals($b->getCssLinks(), [
+			'' => [
+				'c.css' => 'c.css',
+			]
+		]);
+		$this->assertEquals($a->getCssLinks(), [
+			'' => [
+				'c.css' => 'c.css',
+			]
+		]);
+	}
+
 	public function testCssLink() {
 		$a = new WebComponent();
 		$a->addCssLink('a.css');

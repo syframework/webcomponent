@@ -299,4 +299,18 @@ class WebComponentTest extends TestCase {
 		]);
 	}
 
+	public function testJsCodeOptions() {
+		$a = new WebComponent();
+		$a->addJsCode('a', array('load' => 'async'));
+		$a->addJsCode('b', array('type' => 'text/javascript'));
+		$this->assertEquals($a->getJsCode(), [
+			'text/javascript' => [
+				'' => 'b'
+			],
+			'module' => [
+				'async' => "a",
+			]
+		]);
+	}
+
 }

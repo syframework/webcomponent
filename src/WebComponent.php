@@ -137,15 +137,15 @@ class WebComponent extends Component {
 		$code = trim($code);
 
 		// Position
-		$position = empty($options['position']) ? self::JS_BOTTOM : $options['position'];
+		$position = isset($options['position']) ? $options['position'] : self::JS_BOTTOM;
 		if ($position !== self::JS_TOP) $position = self::JS_BOTTOM;
 		
 		// Type
-		$type = empty($options['type']) ? 'module' : $options['type'];
+		$type = isset($options['type']) ? $options['type'] : 'module';
 		if ($type !== 'text/javascript') $type = 'module';
 		
 		// Loading strategy
-		$load = empty($options['load']) ? '' : $options['load'];
+		$load = isset($options['load']) ? $options['load'] : '';
 		if ($load !== 'async') $load = '';
 		
 		$this->jsCode[$position][sha1($code . $type . $load)] = [
@@ -190,15 +190,15 @@ class WebComponent extends Component {
 		$key = $url;
 
 		// Position
-		$position = empty($options['position']) ? self::JS_TOP : $options['position'];
+		$position = isset($options['position']) ? $options['position'] : self::JS_TOP;
 		if ($position !== self::JS_BOTTOM) $position = self::JS_TOP;
 		
 		// Type
-		$type = empty($options['type']) ? 'text/javascript' : $options['type'];
+		$type = isset($options['type']) ? $options['type'] : 'text/javascript';
 		if ($type !== 'module') $type = 'text/javascript';
 		
 		// Loading strategy
-		$load = empty($options['load']) ? 'defer' : $options['load'];
+		$load = isset($options['load']) ? $options['load'] : 'defer';
 		if ($load !== 'async') $load = 'defer';
 
 		$this->jsLinks[$position][$key . $type . $load] = [

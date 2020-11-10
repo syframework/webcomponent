@@ -269,12 +269,7 @@ class WebComponentTest extends TestCase {
 		$a->addJsCode('a');
 		$a->addJsCode('b');
 		$this->assertEquals($a->getJsCode(), [
-			'text/javascript' => [
-				'async' => '',
-				'' => '',
-			],
 			'module' => [
-				'async' => '',
 				'' => "ab",
 			]
 		]);
@@ -282,12 +277,7 @@ class WebComponentTest extends TestCase {
 		$b = new WebComponent();
 		$b->addJsCode('b');
 		$this->assertEquals($b->getJsCode(), [
-			'text/javascript' => [
-				'async' => '',
-				'' => '',
-			],
 			'module' => [
-				'async' => '',
 				'' => "b",
 			]
 		]);
@@ -295,12 +285,7 @@ class WebComponentTest extends TestCase {
 		$c = new WebComponent();
 		$c->addJsCode('c');
 		$this->assertEquals($c->getJsCode(), [
-			'text/javascript' => [
-				'async' => '',
-				'' => '',
-			],
 			'module' => [
-				'async' => '',
 				'' => "c",
 			]
 		]);
@@ -308,12 +293,7 @@ class WebComponentTest extends TestCase {
 		$b->setComponent('SLOT', $c);
 		$a->setComponent('SLOT', $b);
 		$this->assertEquals($a->getJsCode(), [
-			'text/javascript' => [
-				'async' => '',
-				'' => '',
-			],
 			'module' => [
-				'async' => '',
 				'' => "abc",
 			]
 		]);

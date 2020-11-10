@@ -104,18 +104,13 @@ class WebComponent extends Component {
 	 * @return array
 	 */
 	public function getJsCode($position = self::JS_BOTTOM) {
-		$res = array(
-			'text/javascript' => array(
-				'async' => '',
-				'' => '',
-			),
-			'module' => array(
-				'async' => '',
-				'' => '',
-			)
-		);
+		$res = array();
 		foreach ($this->jsCode[$position] as $js) {
-			$res[$js['type']][$js['load']] .= $js['code'];
+			if (isset($res[$js['type']][$js['load']])) {
+				$res[$js['type']][$js['load']] .= $js['code'];
+			} else {
+				$res[$js['type']][$js['load']] = $js['code'];
+			}
 		}
 		return $res;
 	}

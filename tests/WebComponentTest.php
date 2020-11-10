@@ -223,6 +223,17 @@ class WebComponentTest extends TestCase {
 		]);
 	}
 
+	public function testJsLinkArray() {
+		$a = new WebComponent();
+		$a->addJsLink(['url' => 'a.js', 'integrity' => '1234']);
+		$this->assertEquals($a->getJsLinks(), [
+			WebComponent::JS_TOP => [
+				'a.jstext/javascriptdefer' => ['url' => ['url' => 'a.js', 'integrity' => '1234'], 'type' => 'text/javascript', 'load' => 'defer'],
+			],
+			WebComponent::JS_BOTTOM => []
+		]);
+	}
+
 	public function testSameJsLink() {
 		$a = new WebComponent();
 		$a->addJsLink('a.js');

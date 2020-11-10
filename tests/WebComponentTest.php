@@ -185,41 +185,41 @@ class WebComponentTest extends TestCase {
 		$a->addJsLink('a.js');
 		$a->addJsLink('z.js');
 		$this->assertEquals($a->getJsLinks(), [
-			WebComponent::JS_TOP => [],
-			WebComponent::JS_BOTTOM => [
-				'a.js' => 'a.js',
-				'z.js' => 'z.js',
-			]
+			WebComponent::JS_TOP => [
+				'a.jstext/javascriptdefer' => ['url' => 'a.js', 'type' => 'text/javascript', 'load' => 'defer'],
+				'z.jstext/javascriptdefer' => ['url' => 'z.js', 'type' => 'text/javascript', 'load' => 'defer'],
+			],
+			WebComponent::JS_BOTTOM => []
 		]);
 
 		$b = new WebComponent();
 		$b->addJsLink('b.js');
 		$this->assertEquals($b->getJsLinks(), [
-			WebComponent::JS_TOP => [],
-			WebComponent::JS_BOTTOM => [
-				'b.js' => 'b.js'
-			]
+			WebComponent::JS_TOP => [
+				'b.jstext/javascriptdefer' => ['url' => 'b.js', 'type' => 'text/javascript', 'load' => 'defer']
+			],
+			WebComponent::JS_BOTTOM => []
 		]);
 
 		$c = new WebComponent();
 		$c->addJsLink('c.js');
 		$this->assertEquals($c->getJsLinks(), [
-			WebComponent::JS_TOP => [],
-			WebComponent::JS_BOTTOM => [
-				'c.js' => 'c.js'
-			]
+			WebComponent::JS_TOP => [
+				'c.jstext/javascriptdefer' => ['url' => 'c.js', 'type' => 'text/javascript', 'load' => 'defer']
+			],
+			WebComponent::JS_BOTTOM => []
 		]);
 
 		$b->setComponent('SLOT', $c);
 		$a->setComponent('SLOT', $b);
 		$this->assertEquals($a->getJsLinks(), [
-			WebComponent::JS_TOP => [],
-			WebComponent::JS_BOTTOM => [
-				'a.js' => 'a.js',
-				'z.js' => 'z.js',
-				'b.js' => 'b.js',
-				'c.js' => 'c.js',
-			]
+			WebComponent::JS_TOP => [
+				'a.jstext/javascriptdefer' => ['url' => 'a.js', 'type' => 'text/javascript', 'load' => 'defer'],
+				'z.jstext/javascriptdefer' => ['url' => 'z.js', 'type' => 'text/javascript', 'load' => 'defer'],
+				'b.jstext/javascriptdefer' => ['url' => 'b.js', 'type' => 'text/javascript', 'load' => 'defer'],
+				'c.jstext/javascriptdefer' => ['url' => 'c.js', 'type' => 'text/javascript', 'load' => 'defer'],
+			],
+			WebComponent::JS_BOTTOM => []
 		]);
 	}
 
@@ -228,39 +228,39 @@ class WebComponentTest extends TestCase {
 		$a->addJsLink('a.js');
 		$a->addJsLink('z.js');
 		$this->assertEquals($a->getJsLinks(), [
-			WebComponent::JS_TOP => [],
-			WebComponent::JS_BOTTOM => [
-				'a.js' => 'a.js',
-				'z.js' => 'z.js',
-			]
+			WebComponent::JS_TOP => [
+				'a.jstext/javascriptdefer' => ['url' => 'a.js', 'type' => 'text/javascript', 'load' => 'defer'],
+				'z.jstext/javascriptdefer' => ['url' => 'z.js', 'type' => 'text/javascript', 'load' => 'defer'],
+			],
+			WebComponent::JS_BOTTOM => []
 		]);
 
 		$b = new WebComponent();
 		$b->addJsLink('a.js');
 		$this->assertEquals($b->getJsLinks(), [
-			WebComponent::JS_TOP => [],
-			WebComponent::JS_BOTTOM => [
-				'a.js' => 'a.js'
-			]
+			WebComponent::JS_TOP => [
+				'a.jstext/javascriptdefer' => ['url' => 'a.js', 'type' => 'text/javascript', 'load' => 'defer']
+			],
+			WebComponent::JS_BOTTOM => []
 		]);
 
 		$c = new WebComponent();
 		$c->addJsLink('a.js');
 		$this->assertEquals($c->getJsLinks(), [
-			WebComponent::JS_TOP => [],
-			WebComponent::JS_BOTTOM => [
-				'a.js' => 'a.js'
-			]
+			WebComponent::JS_TOP => [
+				'a.jstext/javascriptdefer' => ['url' => 'a.js', 'type' => 'text/javascript', 'load' => 'defer']
+			],
+			WebComponent::JS_BOTTOM => []
 		]);
 
 		$b->setComponent('SLOT', $c);
 		$a->setComponent('SLOT', $b);
 		$this->assertEquals($a->getJsLinks(), [
-			WebComponent::JS_TOP => [],
-			WebComponent::JS_BOTTOM => [
-				'a.js' => 'a.js',
-				'z.js' => 'z.js',
-			]
+			WebComponent::JS_TOP => [
+				'a.jstext/javascriptdefer' => ['url' => 'a.js', 'type' => 'text/javascript', 'load' => 'defer'],
+				'z.jstext/javascriptdefer' => ['url' => 'z.js', 'type' => 'text/javascript', 'load' => 'defer'],
+			],
+			WebComponent::JS_BOTTOM => []
 		]);
 	}
 
@@ -268,19 +268,55 @@ class WebComponentTest extends TestCase {
 		$a = new WebComponent();
 		$a->addJsCode('a');
 		$a->addJsCode('b');
-		$this->assertEquals($a->getJsCode(), "a\nb");
+		$this->assertEquals($a->getJsCode(), [
+			'text/javascript' => [
+				'async' => '',
+				'' => '',
+			],
+			'module' => [
+				'async' => '',
+				'' => "ab",
+			]
+		]);
 
 		$b = new WebComponent();
 		$b->addJsCode('b');
-		$this->assertEquals($b->getJsCode(), 'b');
+		$this->assertEquals($b->getJsCode(), [
+			'text/javascript' => [
+				'async' => '',
+				'' => '',
+			],
+			'module' => [
+				'async' => '',
+				'' => "b",
+			]
+		]);
 
 		$c = new WebComponent();
 		$c->addJsCode('c');
-		$this->assertEquals($c->getJsCode(), 'c');
+		$this->assertEquals($c->getJsCode(), [
+			'text/javascript' => [
+				'async' => '',
+				'' => '',
+			],
+			'module' => [
+				'async' => '',
+				'' => "c",
+			]
+		]);
 
 		$b->setComponent('SLOT', $c);
 		$a->setComponent('SLOT', $b);
-		$this->assertEquals($a->getJsCode(), "a\nb\nc");
+		$this->assertEquals($a->getJsCode(), [
+			'text/javascript' => [
+				'async' => '',
+				'' => '',
+			],
+			'module' => [
+				'async' => '',
+				'' => "abc",
+			]
+		]);
 	}
 
 }

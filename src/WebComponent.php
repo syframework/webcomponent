@@ -74,7 +74,7 @@ class WebComponent extends Component {
 	/**
 	 * Return the css code array
 	 *
-	 * @return string
+	 * @return array
 	 */
 	public function getCssCodeArray() {
 		return $this->cssCode;
@@ -83,7 +83,7 @@ class WebComponent extends Component {
 	/**
 	 * Return the js code array
 	 *
-	 * @return string
+	 * @return array
 	 */
 	public function getJsCodeArray() {
 		return $this->jsCode;
@@ -101,10 +101,23 @@ class WebComponent extends Component {
 	/**
 	 * Return the js code
 	 *
-	 * @return string
+	 * @return array
 	 */
 	public function getJsCode($position = self::JS_BOTTOM) {
-		return implode("\n", $this->jsCode[$position]);
+		$res = array(
+			'text/javascript' => array(
+				'async' => '',
+				'' => '',
+			),
+			'module' => array(
+				'async' => '',
+				'' => '',
+			)
+		);
+		foreach ($this->jsCode[$position] as $js) {
+			$res[$js['type']][$js['load']] .= $js['code'];
+		}
+		return $res;
 	}
 
 	/**
@@ -122,15 +135,29 @@ class WebComponent extends Component {
 	 * Add the js code
 	 *
 	 * @param string $code js code or a js filename
-	 * @param int $position \Sy\Component\WebComponent::JS_TOP or \Sy\Component\WebComponent::JS_BOTTOM
+	 * @param array $options 'position' = JS_TOP|JS_BOTTOM, 'type' = 'text/javascript'|'module', 'load' = 'async'|''
 	 */
-	public function addJsCode($code, $position = self::JS_BOTTOM) {
+	public function addJsCode($code, $options = []) {
 		if (is_file($code)) $code = file_get_contents($code);
 		$code = trim($code);
-		if ($position === self::JS_BOTTOM)
-			$this->jsCode[self::JS_BOTTOM][sha1($code)] = $code;
-		else
-			$this->jsCode[self::JS_TOP][sha1($code)] = $code;
+
+		// Position
+		$position = empty($options['position']) ? self::JS_BOTTOM : $options['position'];
+		if ($position !== self::JS_TOP) $position = self::JS_BOTTOM;
+		
+		// Type
+		$type = empty($options['type']) ? 'module' : $options['type'];
+		if ($type !== 'text/javascript') $type = 'module';
+		
+		// Loading strategy
+		$load = empty($options['load']) ? '' : $options['load'];
+		if ($load !== 'async') $load = '';
+		
+		$this->jsCode[$position][sha1($code . $type . $load)] = [
+			'code' => $code,
+			'type' => $type,
+			'load' => $load
+		];
 	}
 
 	/**
@@ -155,9 +182,9 @@ class WebComponent extends Component {
 	 * Add a js link
 	 *
 	 * @param mixed $url Url
-	 * @param int $position \Sy\Component\WebComponent::JS_TOP or \Sy\Component\WebComponent::JS_BOTTOM
+	 * @param array $options 'position' = JS_TOP|JS_BOTTOM, 'type' = 'text/javascript'|'module', 'load' = 'async'|'defer'
 	 */
-	public function addJsLink($url, $position = self::JS_BOTTOM) {
+	public function addJsLink($url, $options = []) {
 		if (is_string($url)) {
 			$url = trim($url);
 		}
@@ -166,10 +193,24 @@ class WebComponent extends Component {
 		}
 		if (empty($url)) return;
 		$key = $url;
-		if ($position === self::JS_BOTTOM)
-			$this->jsLinks[self::JS_BOTTOM][$key] = $url;
-		else
-			$this->jsLinks[self::JS_TOP][$key] = $url;
+
+		// Position
+		$position = empty($options['position']) ? self::JS_TOP : $options['position'];
+		if ($position !== self::JS_BOTTOM) $position = self::JS_TOP;
+		
+		// Type
+		$type = empty($options['type']) ? 'text/javascript' : $options['type'];
+		if ($type !== 'module') $type = 'text/javascript';
+		
+		// Loading strategy
+		$load = empty($options['load']) ? 'defer' : $options['load'];
+		if ($load !== 'async') $load = 'defer';
+
+		$this->jsLinks[$position][$key . $type . $load] = [
+			'url'  => $url,
+			'type' => $type,
+			'load' => $load
+		];
 	}
 
 	/**
@@ -195,9 +236,10 @@ class WebComponent extends Component {
 	 *
 	 * @param string $directory Translator directory
 	 * @param string $type Translator type
+	 * @param string $lang Translation language. Use auto detection by default
 	 */
-	public function addTranslator($directory, $type = 'php') {
-		$this->translators[] = TranslatorProvider::createTranslator($directory, $type);
+	public function addTranslator($directory, $type = 'php', $lang = '') {
+		$this->translators[] = TranslatorProvider::createTranslator($directory, $type, $lang);
 	}
 
 	/**

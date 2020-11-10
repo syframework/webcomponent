@@ -270,7 +270,7 @@ class WebComponentTest extends TestCase {
 		$a->addJsCode('b');
 		$this->assertEquals($a->getJsCode(), [
 			'module' => [
-				'' => "ab",
+				'' => "a\nb",
 			]
 		]);
 
@@ -294,7 +294,7 @@ class WebComponentTest extends TestCase {
 		$a->setComponent('SLOT', $b);
 		$this->assertEquals($a->getJsCode(), [
 			'module' => [
-				'' => "abc",
+				'' => "a\nb\nc",
 			]
 		]);
 	}

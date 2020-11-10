@@ -107,7 +107,7 @@ class WebComponent extends Component {
 		$res = array();
 		foreach ($this->jsCode[$position] as $js) {
 			if (isset($res[$js['type']][$js['load']])) {
-				$res[$js['type']][$js['load']] .= $js['code'];
+				$res[$js['type']][$js['load']] .= "\n" . $js['code'];
 			} else {
 				$res[$js['type']][$js['load']] = $js['code'];
 			}

@@ -181,13 +181,12 @@ class WebComponent extends Component {
 	 */
 	public function addJsLink($url, $options = []) {
 		if (is_string($url)) {
-			$url = trim($url);
+			$key = trim($url);
 		}
 		if (is_array($url) and isset($url['url'])) {
-			$url = trim($url['url']);
+			$key = trim($url['url']);
 		}
-		if (empty($url)) return;
-		$key = $url;
+		if (empty($key)) return;
 
 		// Position
 		$position = isset($options['position']) ? $options['position'] : self::JS_TOP;

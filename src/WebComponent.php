@@ -46,8 +46,15 @@ class WebComponent extends Component {
 	 * @param WebComponent $component
 	 */
 	public function mergeCss(WebComponent $component) {
-		$this->cssLinks = array_merge($this->cssLinks, $component->getCssLinks());
-		$this->cssCode  = array_merge($this->cssCode, $component->getCssCodeArray());
+		$componentCssLinks = $component->getCssLinks();
+		foreach ($componentCssLinks as $media => $links) {
+			if (isset($this->cssLinks[$media])) {
+				$this->cssLinks[$media] = array_merge($this->cssLinks[$media], $links);
+			} else {
+				$this->cssLinks[$media] = $links;
+			}
+		}
+		$this->cssCode = array_merge($this->cssCode, $component->getCssCodeArray());
 	}
 
 	/**
@@ -67,7 +74,7 @@ class WebComponent extends Component {
 	/**
 	 * Return the css code array
 	 *
-	 * @return string
+	 * @return array
 	 */
 	public function getCssCodeArray() {
 		return $this->cssCode;
@@ -76,7 +83,7 @@ class WebComponent extends Component {
 	/**
 	 * Return the js code array
 	 *
-	 * @return string
+	 * @return array
 	 */
 	public function getJsCodeArray() {
 		return $this->jsCode;
@@ -88,18 +95,24 @@ class WebComponent extends Component {
 	 * @return string
 	 */
 	public function getCssCode() {
-		$res = array_unique($this->cssCode);
-		return implode("\n", $res);
+		return implode("\n", $this->cssCode);
 	}
 
 	/**
 	 * Return the js code
 	 *
-	 * @return string
+	 * @return array
 	 */
-	public function getJsCode($position = self::JS_TOP) {
-		$res = array_unique($this->jsCode[$position]);
-		return implode("\n", $res);
+	public function getJsCode($position = self::JS_BOTTOM) {
+		$res = array();
+		foreach ($this->jsCode[$position] as $js) {
+			if (isset($res[$js['type']][$js['load']])) {
+				$res[$js['type']][$js['load']] .= "\n" . $js['code'];
+			} else {
+				$res[$js['type']][$js['load']] = $js['code'];
+			}
+		}
+		return $res;
 	}
 
 	/**
@@ -109,21 +122,37 @@ class WebComponent extends Component {
 	 */
 	public function addCssCode($code) {
 		if (is_file($code)) $code = file_get_contents($code);
-		$this->cssCode[] = $code;
+		$code = trim($code);
+		$this->cssCode[sha1($code)] = $code;
 	}
 
 	/**
 	 * Add the js code
 	 *
 	 * @param string $code js code or a js filename
-	 * @param int $position \Sy\Component\WebComponent::JS_TOP or \Sy\Component\WebComponent::JS_BOTTOM
+	 * @param array $options 'position' = JS_TOP|JS_BOTTOM, 'type' = 'text/javascript'|'module', 'load' = 'async'|''
 	 */
-	public function addJsCode($code, $position = self::JS_BOTTOM) {
+	public function addJsCode($code, $options = []) {
 		if (is_file($code)) $code = file_get_contents($code);
-		if ($position === self::JS_BOTTOM)
-			$this->jsCode[self::JS_BOTTOM][] = $code;
-		else
-			$this->jsCode[self::JS_TOP][] = $code;
+		$code = trim($code);
+
+		// Position
+		$position = isset($options['position']) ? $options['position'] : self::JS_BOTTOM;
+		if ($position !== self::JS_TOP) $position = self::JS_BOTTOM;
+		
+		// Type
+		$type = isset($options['type']) ? $options['type'] : 'module';
+		if ($type !== 'text/javascript') $type = 'module';
+		
+		// Loading strategy
+		$load = isset($options['load']) ? $options['load'] : '';
+		if ($load !== 'async') $load = '';
+		
+		$this->jsCode[$position][sha1($code . $type . $load)] = [
+			'code' => $code,
+			'type' => $type,
+			'load' => $load
+		];
 	}
 
 	/**
@@ -148,21 +177,34 @@ class WebComponent extends Component {
 	 * Add a js link
 	 *
 	 * @param mixed $url Url
-	 * @param int $position \Sy\Component\WebComponent::JS_TOP or \Sy\Component\WebComponent::JS_BOTTOM
+	 * @param array $options 'position' = JS_TOP|JS_BOTTOM, 'type' = 'text/javascript'|'module', 'load' = 'async'|'defer'
 	 */
-	public function addJsLink($url, $position = self::JS_BOTTOM) {
+	public function addJsLink($url, $options = []) {
 		if (is_string($url)) {
-			$url = trim($url);
+			$key = trim($url);
 		}
 		if (is_array($url) and isset($url['url'])) {
-			$url = trim($url['url']);
+			$key = trim($url['url']);
 		}
-		if (empty($url)) return;
-		$key = $url;
-		if ($position === self::JS_BOTTOM)
-			$this->jsLinks[self::JS_BOTTOM][$key] = $url;
-		else
-			$this->jsLinks[self::JS_TOP][$key] = $url;
+		if (empty($key)) return;
+
+		// Position
+		$position = isset($options['position']) ? $options['position'] : self::JS_TOP;
+		if ($position !== self::JS_BOTTOM) $position = self::JS_TOP;
+		
+		// Type
+		$type = isset($options['type']) ? $options['type'] : 'text/javascript';
+		if ($type !== 'module') $type = 'text/javascript';
+		
+		// Loading strategy
+		$load = isset($options['load']) ? $options['load'] : 'defer';
+		if ($load !== 'async') $load = 'defer';
+
+		$this->jsLinks[$position][$key . $type . $load] = [
+			'url'  => $url,
+			'type' => $type,
+			'load' => $load
+		];
 	}
 
 	/**
@@ -171,9 +213,6 @@ class WebComponent extends Component {
 	 * @return array
 	 */
 	public function getCssLinks() {
-		foreach ($this->cssLinks as $media => $links) {
-			$this->cssLinks[$media] = array_unique($links);
-		}
 		return $this->cssLinks;
 	}
 
@@ -183,8 +222,6 @@ class WebComponent extends Component {
 	 * @return array
 	 */
 	public function getJsLinks() {
-		$this->jsLinks[self::JS_TOP]    = array_unique($this->jsLinks[self::JS_TOP]);
-		$this->jsLinks[self::JS_BOTTOM] = array_unique($this->jsLinks[self::JS_BOTTOM]);
 		return $this->jsLinks;
 	}
 
@@ -193,9 +230,10 @@ class WebComponent extends Component {
 	 *
 	 * @param string $directory Translator directory
 	 * @param string $type Translator type
+	 * @param string $lang Translation language. Use auto detection by default
 	 */
-	public function addTranslator($directory, $type = 'php') {
-		$this->translators[] = TranslatorProvider::createTranslator($directory, $type);
+	public function addTranslator($directory, $type = 'php', $lang = '') {
+		$this->translators[] = TranslatorProvider::createTranslator($directory, $type, $lang);
 	}
 
 	/**

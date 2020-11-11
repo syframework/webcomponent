@@ -142,7 +142,6 @@ class WebComponent extends Component {
 		
 		// Type
 		$type = isset($options['type']) ? $options['type'] : 'module';
-		if ($type !== 'text/javascript') $type = 'module';
 		
 		// Loading strategy
 		$load = isset($options['load']) ? $options['load'] : '';
@@ -177,7 +176,7 @@ class WebComponent extends Component {
 	 * Add a js link
 	 *
 	 * @param mixed $url Url
-	 * @param array $options 'position' = JS_TOP|JS_BOTTOM, 'type' = 'text/javascript'|'module', 'load' = 'async'|'defer'
+	 * @param array $options 'position' = JS_TOP|JS_BOTTOM, 'type' = 'module'|'', 'load' = 'async'|'defer'
 	 */
 	public function addJsLink($url, $options = []) {
 		if (is_string($url)) {
@@ -193,8 +192,7 @@ class WebComponent extends Component {
 		if ($position !== self::JS_BOTTOM) $position = self::JS_TOP;
 		
 		// Type
-		$type = isset($options['type']) ? $options['type'] : 'text/javascript';
-		if ($type !== 'module') $type = 'text/javascript';
+		$type = isset($options['type']) ? $options['type'] : '';
 		
 		// Loading strategy
 		$load = isset($options['load']) ? $options['load'] : 'defer';

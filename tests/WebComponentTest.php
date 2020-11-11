@@ -186,8 +186,8 @@ class WebComponentTest extends TestCase {
 		$a->addJsLink('z.js');
 		$this->assertEquals($a->getJsLinks(), [
 			WebComponent::JS_TOP => [
-				'a.jstext/javascriptdefer' => ['url' => 'a.js', 'type' => 'text/javascript', 'load' => 'defer'],
-				'z.jstext/javascriptdefer' => ['url' => 'z.js', 'type' => 'text/javascript', 'load' => 'defer'],
+				'a.jsdefer' => ['url' => 'a.js', 'type' => '', 'load' => 'defer'],
+				'z.jsdefer' => ['url' => 'z.js', 'type' => '', 'load' => 'defer'],
 			],
 			WebComponent::JS_BOTTOM => []
 		]);
@@ -196,7 +196,7 @@ class WebComponentTest extends TestCase {
 		$b->addJsLink('b.js');
 		$this->assertEquals($b->getJsLinks(), [
 			WebComponent::JS_TOP => [
-				'b.jstext/javascriptdefer' => ['url' => 'b.js', 'type' => 'text/javascript', 'load' => 'defer']
+				'b.jsdefer' => ['url' => 'b.js', 'type' => '', 'load' => 'defer']
 			],
 			WebComponent::JS_BOTTOM => []
 		]);
@@ -205,7 +205,7 @@ class WebComponentTest extends TestCase {
 		$c->addJsLink('c.js');
 		$this->assertEquals($c->getJsLinks(), [
 			WebComponent::JS_TOP => [
-				'c.jstext/javascriptdefer' => ['url' => 'c.js', 'type' => 'text/javascript', 'load' => 'defer']
+				'c.jsdefer' => ['url' => 'c.js', 'type' => '', 'load' => 'defer']
 			],
 			WebComponent::JS_BOTTOM => []
 		]);
@@ -214,10 +214,10 @@ class WebComponentTest extends TestCase {
 		$a->setComponent('SLOT', $b);
 		$this->assertEquals($a->getJsLinks(), [
 			WebComponent::JS_TOP => [
-				'a.jstext/javascriptdefer' => ['url' => 'a.js', 'type' => 'text/javascript', 'load' => 'defer'],
-				'z.jstext/javascriptdefer' => ['url' => 'z.js', 'type' => 'text/javascript', 'load' => 'defer'],
-				'b.jstext/javascriptdefer' => ['url' => 'b.js', 'type' => 'text/javascript', 'load' => 'defer'],
-				'c.jstext/javascriptdefer' => ['url' => 'c.js', 'type' => 'text/javascript', 'load' => 'defer'],
+				'a.jsdefer' => ['url' => 'a.js', 'type' => '', 'load' => 'defer'],
+				'z.jsdefer' => ['url' => 'z.js', 'type' => '', 'load' => 'defer'],
+				'b.jsdefer' => ['url' => 'b.js', 'type' => '', 'load' => 'defer'],
+				'c.jsdefer' => ['url' => 'c.js', 'type' => '', 'load' => 'defer'],
 			],
 			WebComponent::JS_BOTTOM => []
 		]);
@@ -228,7 +228,7 @@ class WebComponentTest extends TestCase {
 		$a->addJsLink(['url' => 'a.js', 'integrity' => '1234']);
 		$this->assertEquals($a->getJsLinks(), [
 			WebComponent::JS_TOP => [
-				'a.jstext/javascriptdefer' => ['url' => ['url' => 'a.js', 'integrity' => '1234'], 'type' => 'text/javascript', 'load' => 'defer'],
+				'a.jsdefer' => ['url' => ['url' => 'a.js', 'integrity' => '1234'], 'type' => '', 'load' => 'defer'],
 			],
 			WebComponent::JS_BOTTOM => []
 		]);
@@ -240,8 +240,8 @@ class WebComponentTest extends TestCase {
 		$a->addJsLink('z.js');
 		$this->assertEquals($a->getJsLinks(), [
 			WebComponent::JS_TOP => [
-				'a.jstext/javascriptdefer' => ['url' => 'a.js', 'type' => 'text/javascript', 'load' => 'defer'],
-				'z.jstext/javascriptdefer' => ['url' => 'z.js', 'type' => 'text/javascript', 'load' => 'defer'],
+				'a.jsdefer' => ['url' => 'a.js', 'type' => '', 'load' => 'defer'],
+				'z.jsdefer' => ['url' => 'z.js', 'type' => '', 'load' => 'defer'],
 			],
 			WebComponent::JS_BOTTOM => []
 		]);
@@ -250,7 +250,7 @@ class WebComponentTest extends TestCase {
 		$b->addJsLink('a.js');
 		$this->assertEquals($b->getJsLinks(), [
 			WebComponent::JS_TOP => [
-				'a.jstext/javascriptdefer' => ['url' => 'a.js', 'type' => 'text/javascript', 'load' => 'defer']
+				'a.jsdefer' => ['url' => 'a.js', 'type' => '', 'load' => 'defer']
 			],
 			WebComponent::JS_BOTTOM => []
 		]);
@@ -259,7 +259,7 @@ class WebComponentTest extends TestCase {
 		$c->addJsLink('a.js');
 		$this->assertEquals($c->getJsLinks(), [
 			WebComponent::JS_TOP => [
-				'a.jstext/javascriptdefer' => ['url' => 'a.js', 'type' => 'text/javascript', 'load' => 'defer']
+				'a.jsdefer' => ['url' => 'a.js', 'type' => '', 'load' => 'defer']
 			],
 			WebComponent::JS_BOTTOM => []
 		]);
@@ -268,8 +268,8 @@ class WebComponentTest extends TestCase {
 		$a->setComponent('SLOT', $b);
 		$this->assertEquals($a->getJsLinks(), [
 			WebComponent::JS_TOP => [
-				'a.jstext/javascriptdefer' => ['url' => 'a.js', 'type' => 'text/javascript', 'load' => 'defer'],
-				'z.jstext/javascriptdefer' => ['url' => 'z.js', 'type' => 'text/javascript', 'load' => 'defer'],
+				'a.jsdefer' => ['url' => 'a.js', 'type' => '', 'load' => 'defer'],
+				'z.jsdefer' => ['url' => 'z.js', 'type' => '', 'load' => 'defer'],
 			],
 			WebComponent::JS_BOTTOM => []
 		]);

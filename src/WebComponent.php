@@ -9,22 +9,13 @@ class WebComponent extends Component {
 	const JS_TOP    = 0;
 	const JS_BOTTOM = 1;
 
-	private $cssLinks;
-	private $jsLinks;
+	private $cssLinks = array();
+	private $jsLinks  = array(self::JS_TOP => array(), self::JS_BOTTOM => array());
 
-	private $cssCode;
-	private $jsCode;
+	private $cssCode  = array();
+	private $jsCode   = array(self::JS_TOP => array(), self::JS_BOTTOM => array());
 
-	private $translators;
-
-	public function __construct() {
-		parent::__construct();
-		$this->cssLinks = array();
-		$this->jsLinks  = array(self::JS_TOP => array(), self::JS_BOTTOM => array());
-		$this->cssCode  = array();
-		$this->jsCode   = array(self::JS_TOP => array(), self::JS_BOTTOM => array());
-		$this->translators = array();
-	}
+	private $translators = array();
 
 	/**
 	 * Add a component

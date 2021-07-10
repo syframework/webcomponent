@@ -1,5 +1,8 @@
 <?php
 
+session_start();
+$_SESSION['sy_language'] = 'fr';
+
 use PHPUnit\Framework\TestCase;
 use Sy\Component\WebComponent;
 
@@ -322,6 +325,16 @@ class WebComponentTest extends TestCase {
 				'async' => "a",
 			]
 		]);
+	}
+
+	public function testTranslate() {
+		$a = new WebComponent();
+		$a->addTranslator(__DIR__);
+		$this->assertEquals($a->_('Hello world'), 'Bonjour monde');
+		$this->assertEquals($a->_('This is %s', 'an apple'), 'Ceci est une pomme');
+		$this->assertEquals($a->_('This is %s'), 'Ceci est %s');
+		$this->assertEquals($a->_('Number of %d max', 10), 'Nombre de 10 max');
+		$this->assertEquals(sprintf($a->_('Number of %d max'), 10), 'Nombre de 10 max');
 	}
 
 }

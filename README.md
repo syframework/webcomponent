@@ -200,8 +200,8 @@ Language will be detected using these variables in this order:
 
 ### Translation methods
 
-- void **WebComponent::addTranslator**(string *$directory* [, string *$type* = 'php'])
-- string **WebComponent::_**(string *$message*)
+- void **WebComponent::addTranslator**(string *$directory* [, string *$type* = 'php', string *$lang* = ''])
+- string **WebComponent::_**(mixed *$values*)
 
 Exemple:
 ```php
@@ -220,7 +220,11 @@ class MyComponent extends WebComponent {
 
 		// Use translation method
 		$table = new Sy\Component\Html\Table();
-		$table->addTr()->addTd($this->_('Hello world'));
+		$tr = $table->addTr();
+		$tr->addTd($this->_('Hello world'));
+		$tr->addTd($this->_('This is %s', 'an apple'));
+		$tr->addTd($this->_('This is %s', 'an pineapple'));
+		$tr->addTd($this->_('Number of %d max', 10));
 
 		$this->setComponent('TABLE', $table);
 	}
@@ -235,6 +239,10 @@ PHP Translation file:
 <?php
 return array(
 	'Hello world' => 'Bonjour monde',
+	'This is %s' => 'Ceci est %s',
+	'an apple' => 'une pomme',
+	'a pineapple' => 'un ananas',
+	'Number of %d max' => 'Nombre de %d max',
 );
 ```
 
@@ -256,6 +264,9 @@ Output result:
 <table>
 <tr>
 <td>Bonjour monde</td>
+<td>Ceci est une pomme</td>
+<td>Ceci est un ananas</td>
+<td>Nombre de 10 max</td>
 </tr>
 </table>
 ```

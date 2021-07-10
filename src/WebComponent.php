@@ -130,14 +130,14 @@ class WebComponent extends Component {
 		// Position
 		$position = isset($options['position']) ? $options['position'] : self::JS_BOTTOM;
 		if ($position !== self::JS_TOP) $position = self::JS_BOTTOM;
-		
+
 		// Type
 		$type = isset($options['type']) ? $options['type'] : 'module';
-		
+
 		// Loading strategy
 		$load = isset($options['load']) ? $options['load'] : '';
 		if ($load !== 'async') $load = '';
-		
+
 		$this->jsCode[$position][sha1($code . $type . $load)] = [
 			'code' => $code,
 			'type' => $type,
@@ -160,7 +160,7 @@ class WebComponent extends Component {
 		}
 		if (empty($url)) return;
 		$key = $url;
-		$this->cssLinks[$media][$key] = $url; 
+		$this->cssLinks[$media][$key] = $url;
 	}
 
 	/**
@@ -181,10 +181,10 @@ class WebComponent extends Component {
 		// Position
 		$position = isset($options['position']) ? $options['position'] : self::JS_TOP;
 		if ($position !== self::JS_BOTTOM) $position = self::JS_TOP;
-		
+
 		// Type
 		$type = isset($options['type']) ? $options['type'] : '';
-		
+
 		// Loading strategy
 		$load = isset($options['load']) ? $options['load'] : 'defer';
 		if ($load !== 'async') $load = 'defer';
@@ -228,15 +228,30 @@ class WebComponent extends Component {
 	/**
 	 * Translate message
 	 *
-	 * @param string $message
+	 * @param mixed $values The first argument can be a sprintf format string and others arguments will be used as sprintf values
 	 * @return string
 	 */
-	public function _($message) {
+	public function _(...$values) {
+		$message = array_shift($values);
+
 		foreach ($this->translators as $translator) {
 			$res = $translator->translate($message);
 			if (!empty($res)) break;
 		}
-		return !empty($res) ? $res : $message;
+
+		array_walk($values, function(&$value) {
+			foreach ($this->translators as $translator) {
+				$a = $translator->translate($value);
+				if (!empty($a)) {
+					$value = $a;
+					break;
+				}
+			}
+		});
+
+		if (empty($res)) $res = $message;
+
+		return empty($values) ? $res : sprintf($res, ...$values);
 	}
 
 	public function __toString() {

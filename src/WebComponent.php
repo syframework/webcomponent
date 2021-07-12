@@ -232,6 +232,9 @@ class WebComponent extends Component {
 	 * @return string
 	 */
 	public function _(...$values) {
+		// Can also accept a single array as argument
+		if (count($values) === 1 and is_array($values[0])) $values = $values[0];
+
 		$message = array_shift($values);
 
 		foreach ($this->translators as $translator) {

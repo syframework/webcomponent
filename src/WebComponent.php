@@ -18,6 +18,20 @@ class WebComponent extends Component {
 	private $translators = array();
 
 	/**
+	 * Set a value of a variable
+	 *
+	 * @param string $var
+	 * @param mixed $value
+	 * @param bool $append
+	 */
+	public function setVar($var, $value, $append = false) {
+		parent::setVar($var, $value, $append);
+		if (!$value instanceof WebComponent) return;
+		$this->mergeCss($value);
+		$this->mergeJs($value);
+	}
+
+	/**
 	 * Add a component
 	 *
 	 * @param string $where
@@ -25,10 +39,7 @@ class WebComponent extends Component {
 	 * @param boolean $append
 	 */
 	public function setComponent($where, Component $component, $append = false) {
-		parent::setComponent($where, $component, $append);
-		if (!$component instanceof WebComponent) return;
-		$this->mergeCss($component);
-		$this->mergeJs($component);
+		$this->setVar($where, $component, $append);
 	}
 
 	/**

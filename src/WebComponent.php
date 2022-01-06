@@ -21,7 +21,7 @@ class WebComponent extends Component {
 	 * Set a value of a variable
 	 *
 	 * @param string $var
-	 * @param mixed $value
+	 * @param mixed $value string or WebComponent
 	 * @param bool $append
 	 */
 	public function setVar($var, $value, $append = false) {
@@ -234,6 +234,20 @@ class WebComponent extends Component {
 	 */
 	public function addTranslator($directory, $type = 'php', $lang = '') {
 		$this->translators[] = TranslatorProvider::createTranslator($directory, $type, $lang);
+	}
+
+	/**
+	 * @return array Array of ITranslator
+	 */
+	public function getTranslators() {
+		return $this->translators;
+	}
+
+	/**
+	 * @param array $translators Array of ITranslator
+	 */
+	public function setTranslators($translators) {
+		$this->translators = $translators;
 	}
 
 	/**

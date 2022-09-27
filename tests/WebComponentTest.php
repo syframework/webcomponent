@@ -329,12 +329,76 @@ class WebComponentTest extends TestCase {
 
 	public function testTranslate() {
 		$a = new WebComponent();
-		$a->addTranslator(__DIR__);
+		$a->addTranslator(__DIR__ . '/lang');
 		$this->assertEquals($a->_('Hello world'), 'Bonjour monde');
 		$this->assertEquals($a->_('This is %s', 'an apple'), 'Ceci est une pomme');
 		$this->assertEquals($a->_('This is %s'), 'Ceci est %s');
 		$this->assertEquals($a->_('Number of %d max', 10), 'Nombre de 10 max');
 		$this->assertEquals(sprintf($a->_('Number of %d max'), 10), 'Nombre de 10 max');
+	}
+
+	public function testMultiTranslatorsOrder1() {
+		$a = new WebComponent();
+		$a->addTranslator(__DIR__ . '/lang');
+		$a->addTranslator(__DIR__ . '/lang/alt');
+		$this->assertEquals($a->_('I am the component %s', 'A'), 'Je suis le composant A');
+		$this->assertEquals($a->_('Hello world'), 'Bonjour monde');
+		$this->assertEquals($a->_('This is %s', 'an apple'), 'Ceci est une pomme');
+		$this->assertEquals($a->_('This is %s'), 'Ceci est %s');
+		$this->assertEquals($a->_('Number of %d max', 10), 'Nombre de 10 max');
+		$this->assertEquals(sprintf($a->_('Number of %d max'), 10), 'Nombre de 10 max');
+	}
+
+	public function testMultiTranslatorsOrder2() {
+		$a = new WebComponent();
+		$a->addTranslator(__DIR__ . '/lang/alt');
+		$a->addTranslator(__DIR__ . '/lang');
+		$this->assertEquals($a->_('I am the component %s', 'A'), 'Je suis le composant A');
+		$this->assertEquals($a->_('Hello world'), 'Bonjour monde');
+		$this->assertEquals($a->_('This is %s', 'an apple'), "C'est une pomme");
+		$this->assertEquals($a->_('This is %s'), "C'est %s");
+		$this->assertEquals($a->_('Number of %d max', 10), 'Le nombre maximum est de 10');
+		$this->assertEquals(sprintf($a->_('Number of %d max'), 10), 'Le nombre maximum est de 10');
+	}
+
+	public function testMergeTranslators() {
+		$a = new WebComponent();
+		$a->addTranslator(__DIR__ . '/lang');
+		$b = new WebComponent();
+		$a->setVar('SLOT', $b);
+		$this->assertEquals($b->_('Hello world'), 'Bonjour monde');
+		$this->assertEquals($b->_('This is %s', 'an apple'), 'Ceci est une pomme');
+		$this->assertEquals($b->_('This is %s'), 'Ceci est %s');
+		$this->assertEquals($b->_('Number of %d max', 10), 'Nombre de 10 max');
+		$this->assertEquals(sprintf($b->_('Number of %d max'), 10), 'Nombre de 10 max');
+	}
+
+	public function testMergeTranslatorsOrder1() {
+		$a = new WebComponent();
+		$a->addTranslator(__DIR__ . '/lang');
+		$b = new WebComponent();
+		$a->setVar('SLOT', $b);
+		$b->addTranslator(__DIR__ . '/lang/alt');
+		$this->assertEquals($b->_('I am the component %s', 'B'), 'Je suis le composant B');
+		$this->assertEquals($b->_('Hello world'), 'Bonjour monde');
+		$this->assertEquals($b->_('This is %s', 'an apple'), 'Ceci est une pomme');
+		$this->assertEquals($b->_('This is %s'), 'Ceci est %s');
+		$this->assertEquals($b->_('Number of %d max', 10), 'Nombre de 10 max');
+		$this->assertEquals(sprintf($b->_('Number of %d max'), 10), 'Nombre de 10 max');
+	}
+
+	public function testMergeTranslatorsOrder2() {
+		$a = new WebComponent();
+		$a->addTranslator(__DIR__ . '/lang');
+		$b = new WebComponent();
+		$b->addTranslator(__DIR__ . '/lang/alt');
+		$a->setVar('SLOT', $b);
+		$this->assertEquals($b->_('I am the component %s', 'B'), 'Je suis le composant B');
+		$this->assertEquals($b->_('Hello world'), 'Bonjour monde');
+		$this->assertEquals($b->_('This is %s', 'an apple'), "C'est une pomme");
+		$this->assertEquals($b->_('This is %s'), "C'est %s");
+		$this->assertEquals($b->_('Number of %d max', 10), 'Le nombre maximum est de 10');
+		$this->assertEquals(sprintf($b->_('Number of %d max'), 10), 'Le nombre maximum est de 10');
 	}
 
 }

@@ -29,6 +29,7 @@ class WebComponent extends Component {
 		if (!$value instanceof WebComponent) return;
 		$this->mergeCss($value);
 		$this->mergeJs($value);
+		$value->addTranslators($this->getTranslators());
 	}
 
 	/**
@@ -159,7 +160,7 @@ class WebComponent extends Component {
 	/**
 	 * Add a css link
 	 *
-	 * @param mixed $url Url
+	 * @param string|array $url Url string or associative array: ['url' => 'https://foo.com/bar.css', 'integrity' => '...', 'crossorigin' => '...']
 	 * @param string $media
 	 */
 	public function addCssLink($url, $media = '') {
@@ -177,7 +178,7 @@ class WebComponent extends Component {
 	/**
 	 * Add a js link
 	 *
-	 * @param mixed $url Url
+	 * @param string|array $url Url string or associative array: ['url' => 'https://foo.com/bar.js', 'integrity' => '...', 'crossorigin' => '...']
 	 * @param array $options 'position' = JS_TOP|JS_BOTTOM, 'type' = 'module'|'', 'load' = 'async'|'defer'
 	 */
 	public function addJsLink($url, $options = []) {
@@ -237,14 +238,21 @@ class WebComponent extends Component {
 	}
 
 	/**
-	 * @return array Array of ITranslator
+	 * @param \Sy\Translate\ITranslator[] $translators Array of ITranslator
+	 */
+	public function addTranslators($translators) {
+		$this->translators = array_merge($this->translators, $translators);
+	}
+
+	/**
+	 * @return \Sy\Translate\ITranslator[] Array of ITranslator
 	 */
 	public function getTranslators() {
 		return $this->translators;
 	}
 
 	/**
-	 * @param array $translators Array of ITranslator
+	 * @param \Sy\Translate\ITranslator[] $translators Array of ITranslator
 	 */
 	public function setTranslators($translators) {
 		$this->translators = $translators;

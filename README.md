@@ -270,3 +270,11 @@ Output result:
 </tr>
 </table>
 ```
+
+### Add multiple translators
+
+It's possible to add multiple translators in a component. The order of addition is important because the translate process will stop right after the first translation data found.
+
+### Translators transmission to inner web component
+
+When adding a web component B in a web component A, all the translators of A will be added into B.

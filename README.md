@@ -1,6 +1,6 @@
 # sy/webcomponent
 
-A web component is a component with CSS, JS and translation properties.
+A web component is a component with CSS and JS properties.
 
 **Sy\Component\WebComponent** class derives from [Sy\Component](https://github.com/syframework/component)
 
@@ -180,101 +180,3 @@ Array
     [1] => /web/path/to/B/script.js
 )
 ```
-
-## Translation
-
-You can add several Translator in a WebComponent.
-Each Translator will load translation data from a file in a specified directory.
-This translation file must be named as the detected language. For example, if the detected language is "fr",
-the PHP Translator will try to load "fr.php". And Gettext Translator will try to load "fr.mo".
-
-This feature is provided by the library [sy/translate](https://github.com/syframework/translate)
-
-### Language detection
-
-Language will be detected using these variables in this order:
-
-1. $_SESSION['sy_language']
-2. $_COOKIE['sy_language']
-3. $_SERVER['HTTP_ACCEPT_LANGUAGE']
-
-### Translation methods
-
-- void **WebComponent::addTranslator**(string *$directory* [, string *$type* = 'php', string *$lang* = ''])
-- string **WebComponent::_**(mixed *$values*)
-
-Exemple:
-```php
-<?php
-
-use Sy\Component\WebComponent;
-
-class MyComponent extends WebComponent {
-
-	public function __construct() {
-		parent::__construct();
-		$this->setTemplateFile(__DIR__ . '/template.tpl');
-
-		// Add a translator, it will look for translation file into specified directory
-		$this->addTranslator(__DIR__ . '/lang');
-
-		// Use translation method
-		$table = new Sy\Component\Html\Table();
-		$tr = $table->addTr();
-		$tr->addTd($this->_('Hello world'));
-		$tr->addTd($this->_('This is %s', 'an apple'));
-		$tr->addTd($this->_('This is %s', 'an pineapple'));
-		$tr->addTd($this->_('Number of %d max', 10));
-
-		$this->setComponent('TABLE', $table);
-	}
-
-}
-
-echo new MyComponent();
-```
-
-PHP Translation file:
-```php
-<?php
-return array(
-	'Hello world' => 'Bonjour monde',
-	'This is %s' => 'Ceci est %s',
-	'an apple' => 'une pomme',
-	'a pineapple' => 'un ananas',
-	'Number of %d max' => 'Nombre de %d max',
-);
-```
-
-Template file:
-```html
-<h3>{"Hello world"}</h3>
-
-<h3>{"No traduction"}</h3>
-
-{TABLE}
-```
-
-Output result:
-```html
-<h3>Bonjour monde</h3>
-
-<h3>No traduction</h3>
-
-<table>
-<tr>
-<td>Bonjour monde</td>
-<td>Ceci est une pomme</td>
-<td>Ceci est un ananas</td>
-<td>Nombre de 10 max</td>
-</tr>
-</table>
-```
-
-### Add multiple translators
-
-It's possible to add multiple translators in a component. The order of addition is important because the translate process will stop right after the first translation data found.
-
-### Translators transmission to inner web component
-
-When adding a web component B in a web component A, all the translators of A will be added into B.

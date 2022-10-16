@@ -1,10 +1,68 @@
 <?php
 
-session_start();
-$_SESSION['sy_language'] = 'fr';
-
 use PHPUnit\Framework\TestCase;
 use Sy\Component\WebComponent;
+
+#region Composition 0
+class A extends WebComponent {
+
+	public function __construct() {
+		$this->mount(function () {
+			$this->setTemplateContent('<a>{B}</a>');
+			$this->setVar('B', new B());
+			$this->addJsLink('a.js');
+			$this->addJsCode('console.log("a")');
+			$this->addCssLink('a.css');
+			$this->addCssCode('.a{color:red}');
+		});
+	}
+
+}
+
+class B extends WebComponent {
+
+	public function __construct() {
+		$this->mount(function () {
+			$this->setTemplateContent('<b>{C}</b>');
+			$this->setVar('C', new C());
+			$this->addJsLink('b.js');
+			$this->addJsCode('console.log("b")');
+			$this->addCssLink('b.css');
+			$this->addCssCode('.b{color:red}');
+		});
+	}
+
+}
+
+class C extends WebComponent {
+
+	public function __construct() {
+		$this->mount(function () {
+			$this->setTemplateContent('<c/>');
+			$this->addJsLink('c.js');
+			$this->addJsCode('console.log("c")');
+			$this->addCssLink('c.css');
+			$this->addCssCode('.c{color:red}');
+		});
+	}
+
+}
+
+class P extends WebComponent {
+
+	public function __construct() {
+		$this->mount(function () {
+			$this->setTemplateContent('{SLOT}');
+			$this->setVar('SLOT', new A());
+			$this->addJsLink('p.js');
+			$this->addJsCode('console.log("p")');
+			$this->addCssLink('p.css');
+			$this->addCssCode('.p{color:red}');
+		});
+	}
+
+}
+#endregion
 
 class WebComponentTest extends TestCase {
 
@@ -21,6 +79,9 @@ class WebComponentTest extends TestCase {
 
 		$b->setComponent('SLOT', $c);
 		$a->setComponent('SLOT', $b);
+
+		$a->render(); // Need to render the component
+
 		$this->assertEquals($b->getCssLinks(), [
 			'' => [
 				'c.css' => 'c.css',
@@ -62,6 +123,9 @@ class WebComponentTest extends TestCase {
 
 		$b->setComponent('SLOT', $c);
 		$a->setComponent('SLOT', $b);
+
+		$a->render(); // Need to render the component
+
 		$this->assertEquals($a->getCssLinks(), [
 			'' => [
 				'a.css' => 'a.css',
@@ -101,6 +165,9 @@ class WebComponentTest extends TestCase {
 
 		$b->setComponent('SLOT', $c);
 		$a->setComponent('SLOT', $b);
+
+		$a->render(); // Need to render the component
+
 		$this->assertEquals($a->getCssLinks(), [
 			'' => [
 				'a.css' => 'a.css',
@@ -152,6 +219,9 @@ class WebComponentTest extends TestCase {
 
 		$b->setComponent('SLOT', $c);
 		$a->setComponent('SLOT', $b);
+
+		$a->render(); // Need to render the component
+
 		$this->assertEquals($a->getCssLinks(), [
 			'screen' => [
 				'a.css' => 'a.css',
@@ -180,6 +250,9 @@ class WebComponentTest extends TestCase {
 
 		$b->setComponent('SLOT', $c);
 		$a->setComponent('SLOT', $b);
+
+		$a->render(); // Need to render the component
+
 		$this->assertEquals($a->getCssCode(), "a\nb\nc");
 	}
 
@@ -215,6 +288,9 @@ class WebComponentTest extends TestCase {
 
 		$b->setComponent('SLOT', $c);
 		$a->setComponent('SLOT', $b);
+
+		$a->render(); // Need to render the component
+
 		$this->assertEquals($a->getJsLinks(), [
 			WebComponent::JS_TOP => [
 				'a.jsdefer' => ['url' => 'a.js', 'type' => '', 'load' => 'defer'],
@@ -269,6 +345,9 @@ class WebComponentTest extends TestCase {
 
 		$b->setComponent('SLOT', $c);
 		$a->setComponent('SLOT', $b);
+
+		$a->render(); // Need to render the component
+
 		$this->assertEquals($a->getJsLinks(), [
 			WebComponent::JS_TOP => [
 				'a.jsdefer' => ['url' => 'a.js', 'type' => '', 'load' => 'defer'],
@@ -306,6 +385,9 @@ class WebComponentTest extends TestCase {
 
 		$b->setComponent('SLOT', $c);
 		$a->setComponent('SLOT', $b);
+
+		$a->render(); // Need to render the component
+
 		$this->assertEquals($a->getJsCode(), [
 			'module' => [
 				'' => "a\nb\nc",
@@ -327,78 +409,36 @@ class WebComponentTest extends TestCase {
 		]);
 	}
 
-	public function testTranslate() {
-		$a = new WebComponent();
-		$a->addTranslator(__DIR__ . '/lang');
-		$this->assertEquals($a->_('Hello world'), 'Bonjour monde');
-		$this->assertEquals($a->_('This is %s', 'an apple'), 'Ceci est une pomme');
-		$this->assertEquals($a->_('This is %s'), 'Ceci est %s');
-		$this->assertEquals($a->_('Number of %d max', 10), 'Nombre de 10 max');
-		$this->assertEquals(sprintf($a->_('Number of %d max'), 10), 'Nombre de 10 max');
-	}
+	public function testComposition() {
+		$p = new P();
+		$p->render();
 
-	public function testMultiTranslatorsOrder1() {
-		$a = new WebComponent();
-		$a->addTranslator(__DIR__ . '/lang');
-		$a->addTranslator(__DIR__ . '/lang/alt');
-		$this->assertEquals($a->_('I am the component %s', 'A'), 'Je suis le composant A');
-		$this->assertEquals($a->_('Hello world'), 'Bonjour monde');
-		$this->assertEquals($a->_('This is %s', 'an apple'), 'Ceci est une pomme');
-		$this->assertEquals($a->_('This is %s'), 'Ceci est %s');
-		$this->assertEquals($a->_('Number of %d max', 10), 'Nombre de 10 max');
-		$this->assertEquals(sprintf($a->_('Number of %d max'), 10), 'Nombre de 10 max');
-	}
+		$this->assertEquals($p->getCssLinks(), [
+			'' => [
+				'p.css' => 'p.css',
+				'a.css' => 'a.css',
+				'b.css' => 'b.css',
+				'c.css' => 'c.css',
+			]
+		]);
 
-	public function testMultiTranslatorsOrder2() {
-		$a = new WebComponent();
-		$a->addTranslator(__DIR__ . '/lang/alt');
-		$a->addTranslator(__DIR__ . '/lang');
-		$this->assertEquals($a->_('I am the component %s', 'A'), 'Je suis le composant A');
-		$this->assertEquals($a->_('Hello world'), 'Bonjour monde');
-		$this->assertEquals($a->_('This is %s', 'an apple'), "C'est une pomme");
-		$this->assertEquals($a->_('This is %s'), "C'est %s");
-		$this->assertEquals($a->_('Number of %d max', 10), 'Le nombre maximum est de 10');
-		$this->assertEquals(sprintf($a->_('Number of %d max'), 10), 'Le nombre maximum est de 10');
-	}
+		$this->assertEquals($p->getCssCode(), ".p{color:red}\n.a{color:red}\n.b{color:red}\n.c{color:red}");
 
-	public function testMergeTranslators() {
-		$a = new WebComponent();
-		$a->addTranslator(__DIR__ . '/lang');
-		$b = new WebComponent();
-		$a->setVar('SLOT', $b);
-		$this->assertEquals($b->_('Hello world'), 'Bonjour monde');
-		$this->assertEquals($b->_('This is %s', 'an apple'), 'Ceci est une pomme');
-		$this->assertEquals($b->_('This is %s'), 'Ceci est %s');
-		$this->assertEquals($b->_('Number of %d max', 10), 'Nombre de 10 max');
-		$this->assertEquals(sprintf($b->_('Number of %d max'), 10), 'Nombre de 10 max');
-	}
+		$this->assertEquals($p->getJsLinks(), [
+			WebComponent::JS_TOP => [
+				'p.jsdefer' => ['url' => 'p.js', 'type' => '', 'load' => 'defer'],
+				'a.jsdefer' => ['url' => 'a.js', 'type' => '', 'load' => 'defer'],
+				'b.jsdefer' => ['url' => 'b.js', 'type' => '', 'load' => 'defer'],
+				'c.jsdefer' => ['url' => 'c.js', 'type' => '', 'load' => 'defer'],
+			],
+			WebComponent::JS_BOTTOM => []
+		]);
 
-	public function testMergeTranslatorsOrder1() {
-		$a = new WebComponent();
-		$a->addTranslator(__DIR__ . '/lang');
-		$b = new WebComponent();
-		$a->setVar('SLOT', $b);
-		$b->addTranslator(__DIR__ . '/lang/alt');
-		$this->assertEquals($b->_('I am the component %s', 'B'), 'Je suis le composant B');
-		$this->assertEquals($b->_('Hello world'), 'Bonjour monde');
-		$this->assertEquals($b->_('This is %s', 'an apple'), 'Ceci est une pomme');
-		$this->assertEquals($b->_('This is %s'), 'Ceci est %s');
-		$this->assertEquals($b->_('Number of %d max', 10), 'Nombre de 10 max');
-		$this->assertEquals(sprintf($b->_('Number of %d max'), 10), 'Nombre de 10 max');
-	}
-
-	public function testMergeTranslatorsOrder2() {
-		$a = new WebComponent();
-		$a->addTranslator(__DIR__ . '/lang');
-		$b = new WebComponent();
-		$b->addTranslator(__DIR__ . '/lang/alt');
-		$a->setVar('SLOT', $b);
-		$this->assertEquals($b->_('I am the component %s', 'B'), 'Je suis le composant B');
-		$this->assertEquals($b->_('Hello world'), 'Bonjour monde');
-		$this->assertEquals($b->_('This is %s', 'an apple'), "C'est une pomme");
-		$this->assertEquals($b->_('This is %s'), "C'est %s");
-		$this->assertEquals($b->_('Number of %d max', 10), 'Le nombre maximum est de 10');
-		$this->assertEquals(sprintf($b->_('Number of %d max'), 10), 'Le nombre maximum est de 10');
+		$this->assertEquals($p->getJsCode(), [
+			'module' => [
+				'' => "console.log(\"p\")\nconsole.log(\"a\")\nconsole.log(\"b\")\nconsole.log(\"c\")",
+			]
+		]);
 	}
 
 }

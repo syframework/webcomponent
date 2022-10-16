@@ -1,10 +1,7 @@
 <?php
 namespace Sy\Component;
 
-use Sy\Component;
-use Sy\Translate\TranslatorProvider;
-
-class WebComponent extends Component {
+class WebComponent extends \Sy\Component {
 
 	const JS_TOP    = 0;
 	const JS_BOTTOM = 1;
@@ -15,40 +12,16 @@ class WebComponent extends Component {
 	private $cssCode  = array();
 	private $jsCode   = array(self::JS_TOP => array(), self::JS_BOTTOM => array());
 
-	private $translators = array();
-
-	/**
-	 * Set a value of a variable
-	 *
-	 * @param string $var
-	 * @param mixed $value string or WebComponent
-	 * @param bool $append
-	 */
-	public function setVar($var, $value, $append = false) {
-		parent::setVar($var, $value, $append);
-		if (!$value instanceof WebComponent) return;
-		$this->mergeCss($value);
-		$this->mergeJs($value);
-		$value->addTranslators($this->getTranslators());
-	}
-
-	/**
-	 * Add a component
-	 *
-	 * @param string $where
-	 * @param Component $component
-	 * @param boolean $append
-	 */
-	public function setComponent($where, Component $component, $append = false) {
-		$this->setVar($where, $component, $append);
-	}
-
 	/**
 	 * Merge css code and links from a WebComponent
 	 *
 	 * @param WebComponent $component
 	 */
 	public function mergeCss(WebComponent $component) {
+		$parent = $this->getParent();
+		if (!is_null($parent) and $parent instanceof WebComponent) {
+			$parent->mergeCss($component);
+		}
 		$componentCssLinks = $component->getCssLinks();
 		foreach ($componentCssLinks as $media => $links) {
 			if (isset($this->cssLinks[$media])) {
@@ -66,6 +39,10 @@ class WebComponent extends Component {
 	 * @param WebComponent $component
 	 */
 	public function mergeJs(WebComponent $component) {
+		$parent = $this->getParent();
+		if (!is_null($parent) and $parent instanceof WebComponent) {
+			$parent->mergeJs($component);
+		}
 		$jsLinks = $component->getJsLinks();
 		$jsCode  = $component->getJsCodeArray();
 		$this->jsLinks[self::JS_TOP]    = array_merge($this->jsLinks[self::JS_TOP]   , $jsLinks[self::JS_TOP]);
@@ -135,7 +112,7 @@ class WebComponent extends Component {
 	 * @param string $code js code or a js filename
 	 * @param array $options 'position' = JS_TOP|JS_BOTTOM, 'type' = 'text/javascript'|'module', 'load' = 'async'|''
 	 */
-	public function addJsCode($code, $options = []) {
+	public function addJsCode($code, array $options = []) {
 		if (is_file($code)) $code = file_get_contents($code);
 		$code = trim($code);
 
@@ -181,7 +158,7 @@ class WebComponent extends Component {
 	 * @param string|array $url Url string or associative array: ['url' => 'https://foo.com/bar.js', 'integrity' => '...', 'crossorigin' => '...']
 	 * @param array $options 'position' = JS_TOP|JS_BOTTOM, 'type' = 'module'|'', 'load' = 'async'|'defer'
 	 */
-	public function addJsLink($url, $options = []) {
+	public function addJsLink($url, array $options = []) {
 		if (is_string($url)) {
 			$key = trim($url);
 		}
@@ -227,74 +204,32 @@ class WebComponent extends Component {
 	}
 
 	/**
-	 * Add a Translator
+	 * Concat web components
 	 *
-	 * @param string $directory Translator directory
-	 * @param string $type Translator type
-	 * @param string $lang Translation language. Use auto detection by default
+	 * @param string|WebComponent ...$elements
+	 * @return WebComponent
 	 */
-	public function addTranslator($directory, $type = 'php', $lang = '') {
-		$this->translators[] = TranslatorProvider::createTranslator($directory, $type, $lang);
-	}
-
-	/**
-	 * @param \Sy\Translate\ITranslator[] $translators Array of ITranslator
-	 */
-	public function addTranslators($translators) {
-		$this->translators = array_merge($this->translators, $translators);
-	}
-
-	/**
-	 * @return \Sy\Translate\ITranslator[] Array of ITranslator
-	 */
-	public function getTranslators() {
-		return $this->translators;
-	}
-
-	/**
-	 * @param \Sy\Translate\ITranslator[] $translators Array of ITranslator
-	 */
-	public function setTranslators($translators) {
-		$this->translators = $translators;
-	}
-
-	/**
-	 * Translate message
-	 *
-	 * @param mixed $values The first argument can be a sprintf format string and others arguments will be used as sprintf values
-	 * @return string
-	 */
-	public function _(...$values) {
-		// Can also accept a single array as argument
-		if (count($values) === 1 and is_array($values[0])) $values = $values[0];
-
-		$message = array_shift($values);
-
-		foreach ($this->translators as $translator) {
-			$res = $translator->translate($message);
-			if (!empty($res)) break;
+	public static function concat(...$elements) {
+		$component = new WebComponent();
+		$component->setTemplateContent('{' . implode('}{', array_keys($elements)) . '}');
+		foreach ($elements as $i => $element) {
+			$component->setVar($i, $element);
 		}
+		return $component;
+	}
 
-		array_walk($values, function(&$value) {
-			foreach ($this->translators as $translator) {
-				$a = $translator->translate($value);
-				if (!empty($a)) {
-					$value = $a;
-					break;
-				}
+	/**
+	 * Return the component render
+	 */
+	public function render() {
+		$this->mount(function () {
+			$parent = $this->getParent();
+			if (!is_null($parent) and $parent instanceof WebComponent) {
+				$parent->mergeCss($this);
+				$parent->mergeJs($this);
 			}
 		});
-
-		if (empty($res)) $res = $message;
-
-		return empty($values) ? $res : sprintf($res, ...$values);
-	}
-
-	public function __toString() {
-		foreach ($this->translators as $translator) {
-			$this->setVars($translator->getTranslationData());
-		}
-		return parent::__toString();
+		return parent::render();
 	}
 
 }

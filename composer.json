@@ -20,5 +20,8 @@
 		"psr-4": {
 			"Sy\\Component\\": "src/"
 		}
+	},
+	"scripts": {
+		"test": "phpunit tests"
 	}
 }

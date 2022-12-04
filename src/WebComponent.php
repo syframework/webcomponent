@@ -7,10 +7,27 @@ class WebComponent extends \Sy\Component {
 	const JS_BOTTOM = 1;
 
 	private $cssLinks = array();
+
 	private $jsLinks  = array(self::JS_TOP => array(), self::JS_BOTTOM => array());
 
 	private $cssCode  = array();
+
 	private $jsCode   = array(self::JS_TOP => array(), self::JS_BOTTOM => array());
+
+	/**
+	 * Concat web components
+	 *
+	 * @param  string|WebComponent ...$elements
+	 * @return WebComponent
+	 */
+	public static function concat(...$elements) {
+		$component = new WebComponent();
+		$component->setTemplateContent('{' . implode("}\n{", array_keys($elements)) . '}');
+		foreach ($elements as $i => $element) {
+			$component->setVar($i, $element);
+		}
+		return $component;
+	}
 
 	/**
 	 * Merge css code and links from a WebComponent
@@ -45,10 +62,10 @@ class WebComponent extends \Sy\Component {
 		}
 		$jsLinks = $component->getJsLinks();
 		$jsCode  = $component->getJsCodeArray();
-		$this->jsLinks[self::JS_TOP]    = array_merge($this->jsLinks[self::JS_TOP]   , $jsLinks[self::JS_TOP]);
+		$this->jsLinks[self::JS_TOP]    = array_merge($this->jsLinks[self::JS_TOP], $jsLinks[self::JS_TOP]);
 		$this->jsLinks[self::JS_BOTTOM] = array_merge($this->jsLinks[self::JS_BOTTOM], $jsLinks[self::JS_BOTTOM]);
-		$this->jsCode[self::JS_TOP]     = array_merge($this->jsCode[self::JS_TOP]    , $jsCode[self::JS_TOP]);
-		$this->jsCode[self::JS_BOTTOM]  = array_merge($this->jsCode[self::JS_BOTTOM] , $jsCode[self::JS_BOTTOM]);
+		$this->jsCode[self::JS_TOP]     = array_merge($this->jsCode[self::JS_TOP], $jsCode[self::JS_TOP]);
+		$this->jsCode[self::JS_BOTTOM]  = array_merge($this->jsCode[self::JS_BOTTOM], $jsCode[self::JS_BOTTOM]);
 	}
 
 	/**
@@ -130,7 +147,7 @@ class WebComponent extends \Sy\Component {
 		$this->jsCode[$position][sha1($code . $type . $load)] = [
 			'code' => $code,
 			'type' => $type,
-			'load' => $load
+			'load' => $load,
 		];
 	}
 
@@ -181,7 +198,7 @@ class WebComponent extends \Sy\Component {
 		$this->jsLinks[$position][$key . $type . $load] = [
 			'url'  => $url,
 			'type' => $type,
-			'load' => $load
+			'load' => $load,
 		];
 	}
 
@@ -201,21 +218,6 @@ class WebComponent extends \Sy\Component {
 	 */
 	public function getJsLinks() {
 		return $this->jsLinks;
-	}
-
-	/**
-	 * Concat web components
-	 *
-	 * @param string|WebComponent ...$elements
-	 * @return WebComponent
-	 */
-	public static function concat(...$elements) {
-		$component = new WebComponent();
-		$component->setTemplateContent('{' . implode('}{', array_keys($elements)) . '}');
-		foreach ($elements as $i => $element) {
-			$component->setVar($i, $element);
-		}
-		return $component;
 	}
 
 	/**

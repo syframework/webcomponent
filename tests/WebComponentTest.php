@@ -441,4 +441,13 @@ class WebComponentTest extends TestCase {
 		]);
 	}
 
+	public function testConcat() {
+		$a = new WebComponent();
+		$a->setTemplateContent('<a>');
+		$b = new WebComponent();
+		$b->setTemplateContent('<b>');
+		$this->assertEquals("<a>\n<b>", strval(WebComponent::concat($a, $b)));
+		$this->assertEquals('', strval(WebComponent::concat(...[])));
+	}
+
 }

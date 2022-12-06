@@ -18,9 +18,10 @@ class WebComponent extends \Sy\Component {
 	 * Concat web components
 	 *
 	 * @param  string|WebComponent ...$elements
-	 * @return WebComponent
+	 * @return string|WebComponent
 	 */
 	public static function concat(...$elements) {
+		if (empty($elements)) return '';
 		$component = new WebComponent();
 		$component->setTemplateContent('{' . implode("}\n{", array_keys($elements)) . '}');
 		foreach ($elements as $i => $element) {

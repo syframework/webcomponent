@@ -160,13 +160,12 @@ class WebComponent extends \Sy\Component {
 	 */
 	public function addCssLink($url, $media = '') {
 		if (is_string($url)) {
-			$url = trim($url);
+			$key = trim($url);
 		}
 		if (is_array($url) and isset($url['url'])) {
-			$url = trim($url['url']);
+			$key = trim($url['url']);
 		}
-		if (empty($url)) return;
-		$key = $url;
+		if (empty($key)) return;
 		$this->cssLinks[$media][$key] = $url;
 	}
 
